@@ -3,253 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Facturación - ASETEC HM</title>
+    <title>ASETEC HM - Factura de Venta Régimen Común</title>
     <style>
         :root {
             --primary-green: #00a859;
-            --dark-bg: #000000;
-            --text-color: #333;
+            --dark-bg: #000;
+            --danger-red: #d9534f;
+            --blue-action: #007bff;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
+            color: #333;
         }
 
         .container {
             max-width: 900px;
             background: #fff;
             margin: auto;
-            padding: 30px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            border-radius: 8px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .legal-header {
+            text-align: center;
+            background: #e9ecef;
+            padding: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border: 1px solid #ccc;
         }
 
         .header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid var(--primary-green);
-            padding-bottom: 20px;
+            border-bottom: 4px solid var(--primary-green);
+            padding-bottom: 15px;
             margin-bottom: 20px;
+            gap: 15px;
         }
 
-        .logo {
-            max-width: 200px;
-        }
+        .logo { max-width: 180px; height: auto; }
 
-        .company-info h1 {
-            margin: 0;
-            color: var(--primary-green);
-            font-size: 24px;
-        }
-
+        .company-info { text-align: right; min-width: 250px; flex: 1; }
+        .company-info h1 { margin: 0; color: var(--primary-green); font-size: 24px; }
+        .company-info p { margin: 3px 0; line-height: 1.4; }
+        
         .invoice-box {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 5px solid var(--primary-green);
+            background: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-left: 6px solid var(--primary-green);
+            border-radius: 4px;
             margin-bottom: 20px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
         }
 
-        th {
-            background-color: var(--primary-green);
-            color: white;
+        .input-group label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 3px; color: #555; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: var(--primary-green); color: white; padding: 12px; text-align: left; font-size: 13px; }
+        td { padding: 8px; border-bottom: 1px solid #eee; }
+
+        input {
             padding: 10px;
-            text-align: left;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        input, select {
-            padding: 8px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
             width: 100%;
             box-sizing: border-box;
+            font-size: 15px;
         }
 
         .btn {
             cursor: pointer;
-            padding: 10px 20px;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: bold;
-            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-add { background: #28a745; color: white; margin-top: 10px; }
-        .btn-print { background: #007bff; color: white; width: 100%; margin-top: 20px; font-size: 18px; }
+        .btn-add { background: var(--primary-green); color: white; width: 100%; margin: 15px 0; }
+        .btn-print { background: var(--blue-action); color: white; flex: 2; font-size: 18px; }
+        .btn-clear { background: #6c757d; color: white; flex: 1; }
+        .btn-remove { background: var(--danger-red); color: white; width: 35px; height: 35px; border-radius: 50%; }
 
-        .totals {
-            float: right;
-            width: 300px;
-            margin-top: 20px;
-        }
+        .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
 
-        .totals div {
+        .totals-container {
             display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            font-size: 1.1em;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 20px;
+            gap: 8px;
         }
+
+        .total-row { display: flex; justify-content: space-between; width: 100%; max-width: 350px; font-weight: 500;}
+        .grand-total { font-size: 24px; font-weight: bold; color: var(--primary-green); border-top: 2px solid #333; padding-top: 10px; }
 
         .footer-credits {
-            margin-top: 50px;
+            margin-top: 30px;
             text-align: center;
-            font-size: 12px;
-            color: #777;
+            font-size: 11px;
+            color: #666;
             border-top: 1px solid #eee;
-            padding-top: 10px;
+            padding: 20px 10px;
+        }
+
+        @media screen and (max-width: 600px) {
+            thead { display: none; }
+            tr { display: block; border: 1px solid #ddd; margin-bottom: 15px; padding: 10px; border-radius: 8px; }
+            td { display: block; text-align: right; padding-left: 50%; position: relative; border: none; min-height: 35px; }
+            td::before { content: attr(data-label); position: absolute; left: 10px; width: 45%; font-weight: bold; text-align: left; color: var(--primary-green); }
         }
 
         @media print {
-            .btn, .btn-add, .btn-print, .no-print {
-                display: none !important;
-            }
+            .no-print, .btn, .btn-remove { display: none !important; }
             body { background: white; padding: 0; }
-            .container { box-shadow: none; border: none; width: 100%; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 10px; }
+            input { border: none !important; background: transparent !important; padding: 2px !important; }
+            .invoice-box { background: white !important; border: 1px solid #000; }
+            .legal-header { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="invoice">
-    <div class="header">
-        <img src="asetechm.PNG" alt="Logo ASETEC HM" class="logo">
-        <div class="company-info" style="text-align: right;">
+<div class="container">
+    <div class="legal-header">Factura de Venta - Régimen Común</div>
+    
+    <header class="header">
+        <img src="asetechm.PNG" alt="ASETEC HM" class="logo">
+        <div class="company-info">
             <h1>ASETEC HM</h1>
-            <p><strong>Asesorías Tecnológicas</strong><br>
-            Harold Marín - Cel: 3117700431<br>
-            Caucasia, Antioquia<br>
-            Régimen Común</p>
+            <p><strong>HAROLD MARÍN</strong></p>
+            <p><strong>C.C. 4.712.484</strong></p>
+            <p>Responsable de IVA</p>
+            <p>Cel: 311 770 0431 | Caucasia, Ant.</p>
         </div>
-    </div>
+    </header>
 
-    <div class="invoice-box">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <label><strong>Cliente:</strong></label>
-                <input type="text" id="clientName" placeholder="Nombre de la empresa o persona">
-                <label><strong>Fecha:</strong></label>
-                <input type="date" id="invoiceDate">
-            </div>
+    <section class="invoice-box">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+            <h3 style="margin:0; font-size: 16px; border-bottom: 2px solid var(--primary-green);">INFORMACIÓN DEL CLIENTE</h3>
             <div style="text-align: right;">
-                <h2 style="margin:0; color: red;">FACTURA No. <span id="consecutiveDisplay">001</span></h2>
+                <span style="color:red; font-weight:bold; font-size: 14px;">FACTURA No.</span>
+                <div id="consecutiveDisplay" style="font-size: 28px; font-weight: bold;">001</div>
             </div>
         </div>
-    </div>
+        
+        <div class="client-grid">
+            <div class="input-group">
+                <label>Nombre / Razón Social</label>
+                <input type="text" id="clientName" placeholder="Cliente">
+            </div>
+            <div class="input-group">
+                <label>NIT o Cédula Cliente</label>
+                <input type="text" id="clientNit" placeholder="Identificación">
+            </div>
+            <div class="input-group">
+                <label>Fecha y Hora (Colombia)</label>
+                <input type="text" id="dateTimeDisplay" readonly style="background: #f0f0f0; font-weight: bold;">
+            </div>
+            <div class="input-group">
+                <label>Dirección</label>
+                <input type="text" id="clientAddress" placeholder="Ubicación">
+            </div>
+            <div class="input-group">
+                <label>Celular</label>
+                <input type="tel" id="clientPhone" placeholder="Contacto">
+            </div>
+            <div class="input-group">
+                <label>Ciudad</label>
+                <input type="text" id="clientCity" value="Caucasia">
+            </div>
+        </div>
+    </section>
 
     <table id="servicesTable">
         <thead>
             <tr>
-                <th style="width: 60%;">Descripción del Servicio</th>
-                <th style="width: 20%;">Cant.</th>
+                <th style="width: 50%;">Descripción del Servicio</th>
+                <th style="width: 10%;">Cant.</th>
                 <th style="width: 20%;">V. Unitario</th>
-                <th style="width: 20%;">Subtotal</th>
-                <th class="no-print"></th>
+                <th style="width: 15%;">Subtotal</th>
+                <th class="no-print" style="width: 5%;"></th>
             </tr>
         </thead>
         <tbody id="tbody">
             <tr>
-                <td><input type="text" placeholder="Ej. Mantenimiento de Equipos" class="desc"></td>
-                <td><input type="number" value="1" class="qty" onchange="calculate()"></td>
-                <td><input type="number" value="0" class="price" onchange="calculate()"></td>
-                <td class="row-total">$ 0.00</td>
-                <td class="no-print"><button class="btn" style="background:red; color:white;" onclick="removeRow(this)">X</button></td>
+                <td data-label="Servicio"><input type="text" class="desc" placeholder="Describa el servicio prestado"></td>
+                <td data-label="Cant."><input type="number" value="1" class="qty" oninput="calculate()"></td>
+                <td data-label="V. Unit"><input type="number" value="0" class="price" oninput="calculate()"></td>
+                <td data-label="Subtotal" class="row-total">$ 0</td>
+                <td class="no-print"><button class="btn btn-remove" onclick="removeRow(this)">X</button></td>
             </tr>
         </tbody>
     </table>
 
-    <button class="btn btn-add no-print" onclick="addRow()">+ Agregar Servicio</button>
+    <button class="btn btn-add no-print" onclick="addRow()">+ AGREGAR SERVICIO</button>
 
-    <div class="totals">
-        <div><span>Subtotal:</span> <span id="subtotalDisplay">$ 0.00</span></div>
-        <div>
-            <span>Retefuente (%):</span> 
-            <input type="number" id="retePercent" value="0" step="0.1" style="width: 60px; text-align: right;" onchange="calculate()">
+    <div class="totals-container">
+        <div class="total-row"><span>Subtotal Servicios:</span><span id="subtotalDisplay">$ 0</span></div>
+        <div class="total-row">
+            <span>Retención en la Fuente (%):</span>
+            <input type="number" id="retePercent" value="0" step="0.1" style="width: 80px; text-align: right;" oninput="calculate()">
         </div>
-        <div><span>Valor Retención:</span> <span id="reteDisplay">$ 0.00</span></div>
-        <hr>
-        <div style="font-weight: bold; font-size: 1.4em; color: var(--primary-green);">
-            <span>TOTAL A PAGAR:</span> <span id="totalDisplay">$ 0.00</span>
-        </div>
+        <div class="total-row"><span>(-) Valor Retenido:</span><span id="reteDisplay">$ 0</span></div>
+        <div class="total-row grand-total"><span>TOTAL A PAGAR:</span><span id="totalDisplay">$ 0</span></div>
     </div>
 
-    <div style="clear: both;"></div>
+    <div class="action-buttons no-print">
+        <button class="btn btn-clear" onclick="resetForm()">NUEVA FACTURA</button>
+        <button class="btn btn-print" onclick="generateInvoice()">GENERAR FACTURA</button>
+    </div>
 
-    <button class="btn btn-print no-print" onclick="generateInvoice()">IMPRIMIR / GUARDAR PDF</button>
-
-    <div class="footer-credits">
+    <footer class="footer-credits">
+        <p>Esta factura de venta se asimila en todos sus efectos legales a una letra de cambio (Art. 774 del Código de Comercio).</p>
         <p>App desarrollada por <strong>VIBRAS POSITIVAS</strong> - Derecho de Autor Reservado &copy; 2026</p>
-        <p><em>Este documento no discrimina IVA por pertenecer al régimen de tributación correspondiente.</em></p>
-    </div>
+    </footer>
 </div>
 
 <script>
-    // Manejo del Consecutivo
-    let consecutive = localStorage.getItem('invoiceNumber') || 1;
+    // Gestión del Consecutivo
+    let consecutive = localStorage.getItem('ase_consecutive') || 1;
     document.getElementById('consecutiveDisplay').innerText = String(consecutive).padStart(3, '0');
-    document.getElementById('invoiceDate').valueAsDate = new Date();
+
+    // Función de Hora Legal Colombiana
+    function updateDateTime() {
+        const ahora = new Date();
+        const opciones = { 
+            timeZone: 'America/Bogota', 
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: true 
+        };
+        document.getElementById('dateTimeDisplay').value = ahora.toLocaleString('es-CO', opciones);
+    }
+    
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
 
     function addRow() {
         const tbody = document.getElementById('tbody');
         const row = `<tr>
-            <td><input type="text" placeholder="Descripción del servicio" class="desc"></td>
-            <td><input type="number" value="1" class="qty" onchange="calculate()"></td>
-            <td><input type="number" value="0" class="price" onchange="calculate()"></td>
-            <td class="row-total">$ 0.00</td>
-            <td class="no-print"><button class="btn" style="background:red; color:white;" onclick="removeRow(this)">X</button></td>
+            <td data-label="Servicio"><input type="text" class="desc"></td>
+            <td data-label="Cant."><input type="number" value="1" class="qty" oninput="calculate()"></td>
+            <td data-label="V. Unit"><input type="number" value="0" class="price" oninput="calculate()"></td>
+            <td data-label="Subtotal" class="row-total">$ 0</td>
+            <td class="no-print"><button class="btn btn-remove" onclick="removeRow(this)">X</button></td>
         </tr>`;
         tbody.insertAdjacentHTML('beforeend', row);
     }
 
     function removeRow(btn) {
-        btn.closest('tr').remove();
-        calculate();
+        if(document.querySelectorAll('#tbody tr').length > 1) {
+            btn.closest('tr').remove();
+            calculate();
+        }
     }
 
     function calculate() {
         let subtotal = 0;
-        const rows = document.querySelectorAll('#tbody tr');
-
-        rows.forEach(row => {
-            const qty = row.querySelector('.qty').value;
-            const price = row.querySelector('.price').value;
+        document.querySelectorAll('#tbody tr').forEach(row => {
+            const qty = parseFloat(row.querySelector('.qty').value) || 0;
+            const price = parseFloat(row.querySelector('.price').value) || 0;
             const rowTotal = qty * price;
-            row.querySelector('.row-total').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(rowTotal);
+            row.querySelector('.row-total').innerText = formatMoney(rowTotal);
             subtotal += rowTotal;
         });
 
-        const retePercent = document.getElementById('retePercent').value;
+        const retePercent = parseFloat(document.getElementById('retePercent').value) || 0;
         const reteValue = subtotal * (retePercent / 100);
         const total = subtotal - reteValue;
 
-        document.getElementById('subtotalDisplay').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(subtotal);
-        document.getElementById('reteDisplay').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(reteValue);
-        document.getElementById('totalDisplay').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total);
+        document.getElementById('subtotalDisplay').innerText = formatMoney(subtotal);
+        document.getElementById('reteDisplay').innerText = formatMoney(reteValue);
+        document.getElementById('totalDisplay').innerText = formatMoney(total);
+    }
+
+    function formatMoney(amount) {
+        return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
     }
 
     function generateInvoice() {
-        // Incrementar consecutivo
-        consecutive++;
-        localStorage.setItem('invoiceNumber', consecutive);
-        
-        // Imprimir
-        window.print();
-        
-        // Actualizar vista
-        document.getElementById('consecutiveDisplay').innerText = String(consecutive).padStart(3, '0');
+        if(confirm("¿Confirmas la generación de la factura? Se aumentará el consecutivo.")){
+            window.print();
+            consecutive++;
+            localStorage.setItem('ase_consecutive', consecutive);
+            document.getElementById('consecutiveDisplay').innerText = String(consecutive).padStart(3, '0');
+        }
+    }
+
+    function resetForm() {
+        if(confirm("¿Deseas borrar todos los datos para una nueva factura?")){
+            location.reload();
+        }
     }
 </script>
 
