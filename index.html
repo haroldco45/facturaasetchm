@@ -1,1 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Facturación - ASETEC HM</title>
+    <style>
+        :root {
+            --primary-green: #00a859;
+            --dark-bg: #000000;
+            --text-color: #333;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            background: #fff;
+            margin: auto;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary-green);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 200px;
+        }
+
+        .company-info h1 {
+            margin: 0;
+            color: var(--primary-green);
+            font-size: 24px;
+        }
+
+        .invoice-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 5px solid var(--primary-green);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        input, select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-add { background: #28a745; color: white; margin-top: 10px; }
+        .btn-print { background: #007bff; color: white; width: 100%; margin-top: 20px; font-size: 18px; }
+
+        .totals {
+            float: right;
+            width: 300px;
+            margin-top: 20px;
+        }
+
+        .totals div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .footer-credits {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        @media print {
+            .btn, .btn-add, .btn-print, .no-print {
+                display: none !important;
+            }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="invoice">
+    <div class="header">
+        <img src="asetechm.PNG" alt="Logo ASETEC HM" class="logo">
+        <div class="company-info" style="text-align: right;">
+            <h1>ASETEC HM</h1>
+            <p><strong>Asesorías Tecnológicas</strong><br>
+            Harold Marín - Cel: 3117700431<br>
+            Caucasia, Antioquia<br>
+            Régimen Común</p>
+        </div>
+    </div>
+
+    <div class="invoice-box">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label><strong>Cliente:</strong></label>
+                <input type="text" id="clientName" placeholder="Nombre de la empresa o persona">
+                <label><strong>Fecha:</strong></label>
+                <input type="date" id="invoiceDate">
+            </div>
+            <div style="text-align: right;">
+                <h2 style="margin:0; color: red;">FACTURA No. <span id="consecutiveDisplay">001</span></h2>
+            </div>
+        </div>
+    </div>
+
+    <table id="servicesTable">
+        <thead>
+            <tr>
+                <th style="width: 60%;">Descripción del Servicio</th>
+                <th style="width: 20%;">Cant.</th>
+                <th style="width: 20%;">V. Unitario</th>
+                <th style="width: 20%;">Subtotal</th>
+                <th class="no-print"></th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <tr>
+                <td><input type="text" placeholder="Ej. Mantenimiento de Equipos" class="desc"></td>
+                <td><input type="number" value="1" class="qty" onchange="calculate()"></td>
+                <td><input type="number" value="0" class="price" onchange="calculate()"></td>
+                <td class="row-total">$ 0.00</td>
+                <td class="no-print"><button class="btn" style="background:red; color:white;" onclick="removeRow(this)">X</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-add no-print" onclick="addRow()">+ Agregar Servicio</button>
+
+    <div class="totals">
+        <div><span>Subtotal:</span> <span id="subtotalDisplay">$ 0.00</span></div>
+        <div>
+            <span>Retefuente (%):</span> 
+            <input type="number" id="retePercent" value="0" step="0.1" style="width: 60px; text-align: right;" onchange="calculate()">
+        </div>
+        <div><span>Valor Retención:</span> <span id="reteDisplay">$ 0.00</span></div>
+        <hr>
+        <div style="font-weight: bold; font-size: 1.4em; color: var(--primary-green);">
+            <span>TOTAL A PAGAR:</span> <span id="totalDisplay">$ 0.00</span>
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <button class="btn btn-print no-print" onclick="generateInvoice()">IMPRIMIR / GUARDAR PDF</button>
+
+    <div class="footer-credits">
+        <p>App desarrollada por <strong>VIBRAS POSITIVAS</strong> - Derecho de Autor Reservado &copy; 2026</p>
+        <p><em>Este documento no discrimina IVA por pertenecer al régimen de tributación correspondiente.</em></p>
+    </div>
+</div>
+
+<script>
+    // Manejo del Consecutivo
+    let consecutive = localStorage.getItem('invoiceNumber') || 1;
+    document.getElementById('consecutiveDisplay').innerText = String(consecutive).padStart(3, '0');
+    document.getElementById('invoiceDate').valueAsDate = new Date();
+
+    function addRow() {
+        const tbody = document.getElementById('tbody');
+        const row = `<tr>
+            <td><input type="text" placeholder="Descripción del servicio" class="desc"></td>
+            <td><input type="number" value="1" class="qty" onchange="calculate()"></td>
+            <td><input type="number" value="0" class="price" onchange="calculate()"></td>
+            <td class="row-total">$ 0.00</td>
+            <td class="no-print"><button class="btn" style="background:red; color:white;" onclick="removeRow(this)">X</button></td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+    }
+
+    function removeRow(btn) {
+        btn.closest('tr').remove();
+        calculate();
+    }
+
+    function calculate() {
+        let subtotal = 0;
+        const rows = document.querySelectorAll('#tbody tr');
+
+        rows.forEach(row => {
+            const qty = row.querySelector('.qty').value;
+            const price = row.querySelector('.price').value;
+            const rowTotal = qty * price;
+            row.querySelector('.row-total').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(rowTotal);
+            subtotal += rowTotal;
+        });
+
+        const retePercent = document.getElementById('retePercent').value;
+        const reteValue = subtotal * (retePercent / 100);
+        const total = subtotal - reteValue;
+
+        document.getElementById('subtotalDisplay').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(subtotal);
+        document.getElementById('reteDisplay').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(reteValue);
+        document.getElementById('totalDisplay').innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total);
+    }
+
+    function generateInvoice() {
+        // Incrementar consecutivo
+        consecutive++;
+        localStorage.setItem('invoiceNumber', consecutive);
+        
+        // Imprimir
+        window.print();
+        
+        // Actualizar vista
+        document.getElementById('consecutiveDisplay').innerText = String(consecutive).padStart(3, '0');
+    }
+</script>
+
+</body>
+</html>
